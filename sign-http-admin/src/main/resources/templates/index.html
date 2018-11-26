@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+
+    <!-- CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.css" rel="stylesheet">
+    <link href="css/entypo.css" rel="stylesheet">
+    <link href="css/bootstrap-extra.css" rel="stylesheet">
+
+    <style type="text/css">
+        #form .form-group label{
+            text-align: left;
+
+        }
+        #form .form-group{
+            margin-bottom: 10px;
+        }
+
+        #form .form-group .key{
+            display: inline-block;
+            width: 100px;
+        }
+        #form .form-group .value{
+            display: inline-block;
+            width: 200px;
+        }
+
+        #form .group-item-div{
+            padding-bottom: 5px;
+        }
+
+        .oper{
+            display: inline-block;
+        }
+        .oper .glyphicon{
+            cursor: pointer;
+        }
+
+        #infoDiv .alert{
+            -ms-word-break: break-all;
+            word-break: break-all;
+        }
+    </style>
+  </head>
+
+  <body>
+     <!-- Part 1: Wrap all page content here -->
+    <div id="wrap">
+      <!-- Fixed navbar -->
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">Http Request Tools</a>
+            <div class="nav-collapse collapse">
+              <ul class="nav">
+                <li><a href="">Home</a></li>
+              </ul>
+            </div><!--/.nav-collapse -->
+          </div><!-- container -->
+        </div>
+       </div>
+       
+       <!-- Begin page content -->
+       <div class="container">
+         <div class="page-header">
+          
+         </div>
+         <div class="content" style="margin-bottom: 100px;">
+            <div id="contentDiv">
+				<div class="panel panel-success">
+				  <div class="panel-heading">
+                      HTTP POST请求
+                      <span class="tools pull-right">
+                          <a id="btnKey" href="javascript:;" class="fa fa-edit" ></a>
+                       </span>
+                  </div>
+				  <div class="panel-body">
+					<form role="form" id="form" action="/http/post" method="post" enctype="multipart/form-data" class="form-horizontal form-groups-bordered" onsubmit="return beforeSubmit()">
+						<input type="hidden" id="privateKey" name="privateKey" value=""/>
+                        <input type="hidden" id="params" name="params" value=""/>
+                        <div class="form-group">
+							<label class="col-sm-3 control-label">请求URL:</label>
+							<div class="col-sm-9">
+								<input datatype="*" class="form-control" name="reqUrl" id="reqUrl" type="text" placeholder="请求URL" value=""/>
+							</div>
+						</div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">请求参数:</label>
+                            <div class="col-sm-9 group-div">
+                                <div class="group-item-div" group_id="1">
+                                    Key: <input type="text" class="key form-control" th:value="mchTradeNo"/>
+                                    Value: <input type="text" class="value form-control"/>
+                                    <div class="oper">
+                                        <span class="add glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                        <span class="del glyphicon glyphicon-minus" aria-hidden="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-9">
+                                <input id="useSign" type="checkbox" name="useSign" value="true">&nbsp;是否加签
+                            </div>
+                        </div>
+
+
+
+						<button id="btnSubmit" type="submit" class="btn btn-success">提交</button>
+					</form>
+					
+					<div id="infoDiv" style="margin-top: 20px"></div>
+				  </div>
+				</div>
+
+				
+				
+            </div>
+            <!-- <p id="back-top">
+		      <a id="toTop" href="javascript:void(0);">
+		         <span></span>
+		      </a>
+	        </p> -->
+         </div>
+      
+       </div>
+      </div><!-- wrap -->
+      
+      <div id="footer">
+         <div class="container">
+	        <p class="muted credit">
+	            Selwyn Shen <a href="mailto:selwynshen@gmail.com">selwynshen@gmail.com</a>
+	         </p>
+         </div>
+      </div>
+  </body>
+  
+  <script src="js/jquery-1.10.2.min.js"></script>
+  
+  <script src="js/bootstrap.js"></script>
+
+  <script src="js/bootbox.js"></script>
+
+  <script src="js/index.js"></script>
+
+  <script type="text/javascript">
+
+  function getPrivateKey()
+  {
+      var localPrivateKey = window.localStorage.privateKey;
+      if (!localPrivateKey)
+      {
+          localPrivateKey = "";
+      }
+      return localPrivateKey;
+  }
+
+  function popEditKey()
+  {
+      var localPrivateKey = getPrivateKey();
+      var data = "<style>.modal-content{width: 560px;margin-left:84px;}.modal-body{width: 560px;padding-bottom: 5px;}</style><form class=\"form-horizontal\"><div class=\"form-group\"><label class=\"control-label col-sm-3\" >Private Key:</label><div class=\"col-sm-9\"><textarea id=\"taPrivateKey\" class=\"form-control\" rows=\"7\">"+localPrivateKey+"</textarea></div></div></form>";
+      var title = "设置私钥";
+      var btnData = {
+          'sLabel':'确定',
+          'cLabel':'取消',
+          'sCallback':function(){
+              var privateKey = $("#taPrivateKey").val();
+              //alert(privateKey);
+              window.localStorage.privateKey = privateKey;
+          },
+          'cCallback':function(){}
+      };
+      confirmDialogPop(data,"",title, btnData);
+  }
+
+  function beforeSubmit()
+  {
+      var kvs = new Array();
+      var groupItems = $(".group-div").find(".group-item-div");
+      groupItems.each(function(){
+          var gid = $(this).attr("group_id");
+          var key = $(this).find(".key").val();
+          var value = $(this).find(".value").val();
+
+          kvs.push(key+"$$"+value);
+      });
+      $("#params").val(kvs.join("||"));
+
+      $.post("/http/post", {
+          "useSign": $("#useSign").val(),
+          "params": $("#params").val(),
+          "privateKey": $("#privateKey").val(),
+          "reqUrl": $("#reqUrl").val()
+      }, function(jsondata){
+          var flag = false;
+          if (jsondata)
+          {
+              flag = jsondata.success;
+          }
+          var html = getAlertHTML(flag?1:2, JSON.stringify(jsondata.data));
+          $("#infoDiv").append(html);
+      });
+
+      return false;
+  }
+
+
+
+  function setDefault()
+  {
+      var $div_obj = $(".group-div");
+      var cloned_div_obj = $div_obj.find(".group-item-div:first");
+      cloned_div_obj.find(".add").trigger("click");
+      cloned_div_obj.find(".add").trigger("click");
+      //cloned_div_obj.find(".add").trigger("click");
+      //cloned_div_obj.find(".add").trigger("click");
+
+      var keys = ['mchTradeNo',
+          'mchSysCode',
+          'amount',
+          //'timestamp',
+          //'description'
+      ];
+      var vals = [
+          "ybl_2018070573188003",
+          "OAS",
+          "1",
+          //"1111",
+          //"就是这么抠门"
+      ];
+      fulfillGroup($div_obj, keys, vals);
+
+      $("#reqUrl").val("http://ptest.ybl.cn/payment/v1/refund/orders");
+      $("#useSign").trigger("click");
+  }
+
+  $(function(){
+     var localPrivateKey = getPrivateKey();
+     $("#privateKey").val(localPrivateKey);
+
+     var $groupDiv = $(".group-div");
+     var cloned_div_obj = $groupDiv.find(".group-item-div:first").clone();
+     bindComplexGroupEvent($groupDiv, cloned_div_obj);
+
+
+      $("#btnKey").click(function(){
+          popEditKey();
+      });
+
+      setDefault();
+
+  });
+
+  </script>
+</html>
